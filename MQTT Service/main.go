@@ -31,7 +31,7 @@ func connectToMqtt() *client.Client {
 	return cli
 }
 
-func publishUpdate(cli *client.Client, state string) {
+func publishUpdate(cli *client.Client, property string, propertyValue string) {
 	updateMessage := DeviceTwinUpdate{State: state}
 	twinUpdateBody, _ := json.Marshal(updateMessage)
 	cli.Publish(&client.PublishOptions{
@@ -41,10 +41,19 @@ func publishUpdate(cli *client.Client, state string) {
 	})
 }
 
+//createActualUpdateMessage function is used to create the device twin update message
+func createActualUpdateMessage(actualValue string, property string) DeviceTwinUpdate {
+	var deviceTwinUpdateMessage DeviceTwinUpdate
+	actualMap := map[string]*MsgTwin{property: {Actual: &TwinValue{Value: &actualValue}, Metadata: &TypeMetadata{Type: "Updated"}}}
+	deviceTwinUpdateMessage.Twin = actualMap
+	return deviceTwinUpdateMessage
+}
+
+
 func main() {
 	cli := connectToMqtt()
 	defer cli.Terminate()
 
 	// Example of publishing state updates
-	publishUpdate(cli, "Red Light ON")
+	//publishUpdate(cli, "Red","ON")
 }
